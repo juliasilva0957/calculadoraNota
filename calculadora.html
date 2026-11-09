@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Calculadora de média - Disciplinas técnicas</title>
+<style>
+:root {
+  --bg: #faf7f5;
+  --card: #ffffff;
+  --text: #2b2326;
+  --muted: #6f6468;
+  --border: #e8dfe2;
+  --accent: #d6246e;
+  --accent-soft: #fce8f1;
+  --ok: #1f7a4d;
+  --ok-soft: #e3f4ea;
+  --bad: #b3261e;
+  --bad-soft: #fbe7e5;
+  --info: #7a2450;
+  --radius: 12px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1a1517;
+    --card: #251e21;
+    --text: #f3ecee;
+    --muted: #b3a6ab;
+    --border: #3a2f33;
+    --accent: #ff6fa8;
+    --accent-soft: #3b1f2c;
+    --ok: #7fd6a4;
+    --ok-soft: #1d3a2a;
+    --bad: #ff9b93;
+    --bad-soft: #432220;
+    --info: #ffb3d2;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.55;
+}
+main { max-width: 860px; margin: 0 auto; padding: 32px 16px 64px; }
+h1 { font-size: 26px; margin: 0 0 4px; }
+h2 { font-size: 20px; margin: 40px 0 4px; color: var(--accent); }
+h3 { font-size: 16px; margin: 0 0 2px; }
+.lead { color: var(--muted); margin: 0 0 20px; }
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  margin-bottom: 12px;
+}
+.sub { font-size: 13px; color: var(--muted); margin: 0 0 12px; }
+.row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+input {
+  width: 100%;
+  height: 38px;
+  padding: 0 10px;
+  font: inherit;
+  color: var(--text);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+button {
+  font: inherit;
+  cursor: pointer;
+  height: 38px;
+  padding: 0 16px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+}
+button:hover { border-color: var(--accent); }
+button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+.res { font-size: 13px; color: var(--muted); margin-top: 10px; }
+.toolbar { display: flex; flex-wrap: wrap; align-items: end; gap: 12px; margin-bottom: 16px; }
+.toolbar .field { width: 140px; }
+.metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin: 16px 0 12px; }
+.metric { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; }
+.metric span { display: block; font-size: 13px; color: var(--muted); }
+.metric b { font-size: 26px; font-weight: 600; }
+.msg { padding: 12px 16px; border-radius: var(--radius); font-size: 14px; background: var(--card); border: 1px solid var(--border); color: var(--muted); }
+.msg.ok { background: var(--ok-soft); color: var(--ok); border-color: transparent; }
+.msg.bad { background: var(--bad-soft); color: var(--bad); border-color: transparent; }
+.msg.info { background: var(--accent-soft); color: var(--info); border-color: transparent; }
+.weights { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin-bottom: 8px; }
+.weights div { background: var(--accent-soft); border-radius: 8px; padding: 10px 12px; font-size: 13px; color: var(--info); }
+.weights b { display: block; font-size: 18px; }
+.scen { display: grid; grid-template-columns: 1fr auto; gap: 8px 16px; align-items: center; }
+.scen .vals { font-size: 13px; color: var(--muted); }
+.badge { display: inline-block; font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 999px; }
+.badge.ok { background: var(--ok-soft); color: var(--ok); }
+.badge.bad { background: var(--bad-soft); color: var(--bad); }
+.scen .big { font-size: 22px; font-weight: 600; text-align: right; }
+.scen .right { text-align: right; }
+.link { border: none; background: none; height: auto; padding: 0; font-size: 12px; color: var(--muted); text-decoration: underline; }
+.add { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)) auto; gap: 12px; align-items: end; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); }
+th { font-size: 12px; color: var(--muted); font-weight: 600; }
+td.no { color: var(--bad); }
+td.free { color: var(--ok); }
+.table-wrap { overflow-x: auto; }
+@media (max-width: 560px) {
+  .row, .add { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<main>
+
+<h1>Calculadora de média</h1>
+<p class="lead">Descubra quanto você precisa tirar nas disciplinas técnicas para fechar o semestre com a média que quer (padrão: 6,0).</p>
+
+<div class="card">
+  <h3>Como a nota é calculada</h3>
+  <p class="sub">Média da disciplina = AC1 × 25% + AC2 × 35% + AC3 × 40%. A nota Integrada repete essa média. Cada Continuada (AC) tem o detalhamento abaixo.</p>
+  <div class="weights">
+    <div><b>30%</b>Entregas</div>
+    <div><b>30%</b>Integrada (Moodle)</div>
+    <div><b>40%</b>Prática</div>
+  </div>
+</div>
+
+<h2>1. Calculadora do semestre</h2>
+<p class="lead">Preencha as notas que você já tem. O que ficar em branco conta como "ainda não saiu".</p>
+
+<div class="toolbar">
+  <div class="field">
+    <label for="alvo">Média desejada</label>
+    <input id="alvo" type="text" inputmode="decimal" value="6">
+  </div>
+</div>
+
+<div class="card ac" data-w="0.25">
+  <h3>Continuada 1 <span style="font-weight:400;color:var(--muted)">· 25%</span></h3>
+  <p class="sub">Entregas 30% · Integrada 30% · Prática 40%</p>
+  <div class="row">
+    <div><label>Entregas</label><input class="n" type="text" inputmode="decimal" placeholder="0 a 10"></div>
+    <div><label>Integrada (Moodle)</label><input class="n" type="text" inputmode="decimal" placeholder="0 a 10"></div>
+    <div><label>Prática</label><input class="n" type="text" inputmode="decimal" placeholder="0 a 10"></div>
+  </div>
+  <div class="res"></div>
+</div>
+
+<div class="card ac" data-w="0.35">
+  <h3>Continuada 2 <span style="font-weight:400;color:var(--muted)">· 35%</span></h3>
+  <p class="sub">Entregas 30% · Integrada 30% · Prática 40%</p>
+  <div class="row">
+    <div><label>Entregas</label><input class="n" type="text" inputmode="decimal" placeholder="0 a 10"></div>
+    <div><label>Integrada (Moodle)</label><input class="n" type="text" inputmode="decimal" placeholder="0 a 10"></div>
+    <div><label>Prática</label><input class="n" type="text" inputmode="decimal" placeholder="0 a 10"></div>
+  </div>
+  <div class="res"></div>
+</div>
+
+<div class="card ac" data-w="0.40">
+  <h3>Continuada 3 <span style="font-weight:400;color:var(--muted)">· 40%</span></h3>
+  <p class="sub">Entregas 30% · Integrada 30% · Prática 40%</p>
+  <div class="row">
+    <div><label>Entregas</label><input class="n" type="text" inputmode="decimal" placeholder="0 a 10"></div>
+    <div><label>Integrada (Moodle)</label><input class="n" type="text" inputmode="decimal" placeholder="0 a 10"></div>
+    <div><label>Prática</label><input class="n" type="text" inputmode="decimal" placeholder="0 a 10"></div>
+  </div>
+  <div class="res"></div>
+</div>
+
+<div class="metrics">
+  <div class="metric"><span>Pontos já garantidos</span><b id="pts">0,00</b></div>
+  <div class="metric"><span>Máximo possível</span><b id="max">0,00</b></div>
+  <div class="metric"><span>Nota necessária no que falta</span><b id="need">-</b></div>
+</div>
+<div id="msg" class="msg">Preencha as notas que você já tem.</div>
+
+<h2>2. Possibilidades de notas</h2>
+<p class="lead">Monte combinações de Integrada, Entrega e Prova para uma Continuada e veja se elas batem a meta.</p>
+
+<div class="toolbar">
+  <div class="field">
+    <label for="metaAC">Meta da Continuada</label>
+    <input id="metaAC" type="text" inputmode="decimal" value="6">
+  </div>
+  <button id="usarNecessaria" type="button">Usar a nota necessária da calculadora</button>
+</div>
+
+<div class="card">
+  <h3>Adicionar possibilidade</h3>
+  <p class="sub">Nota da AC = Integrada × 0,3 + Entrega × 0,3 + Prova × 0,4</p>
+  <div class="add">
+    <div><label>Integrada</label><input id="pInt" type="text" inputmode="decimal" placeholder="0 a 10"></div>
+    <div><label>Entrega</label><input id="pEnt" type="text" inputmode="decimal" placeholder="0 a 10"></div>
+    <div><label>Prova</label><input id="pPro" type="text" inputmode="decimal" placeholder="0 a 10"></div>
+    <button id="addPoss" class="primary" type="button">Adicionar</button>
+  </div>
+  <div id="addErr" class="res" style="color:var(--bad)"></div>
+</div>
+
+<div id="lista"></div>
+
+<h2>3. Combinações que fecham a meta</h2>
+<p class="lead">Para cada nota de Prova, quanto você precisa em Integrada e Entrega para atingir a meta da Continuada.</p>
+
+<div class="card">
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Prova</th>
+          <th>Integrada e Entrega iguais</th>
+          <th>Uma das duas 10, a outra precisa de</th>
+        </tr>
+      </thead>
+      <tbody id="tabela"></tbody>
+    </table>
+  </div>
+  <p class="sub" style="margin-top:12px">Os valores são arredondados para cima, na primeira casa decimal. Cada ponto a menos na Prova pede cerca de 1,33 ponto a mais em Entrega ou Integrada.</p>
+</div>
+
+</main>
+
+<script>
+var PESOS = { entrega: 0.3, integrada: 0.3, pratica: 0.4 };
+
+function lerNota(texto) {
+  var t = String(texto).trim().replace(',', '.');
+  if (t === '') return null;
+  var n = parseFloat(t);
+  if (isNaN(n)) return null;
+  return Math.min(10, Math.max(0, n));
+}
+
+function fmt(x, casas) {
+  casas = casas === undefined ? 2 : casas;
+  return (Math.round(x * Math.pow(10, casas)) / Math.pow(10, casas)).toFixed(casas).replace('.', ',');
+}
+
+function teto1(x) {
+  return Math.ceil(x * 10 - 0.0001) / 10;
+}
+
+function lerMeta(id) {
+  var v = lerNota(document.getElementById(id).value);
+  return v === null ? 6 : v;
+}
+
+/* ---------- 1. Calculadora do semestre ---------- */
+var necessariaAtual = null;
+
+function calcularSemestre() {
+  var alvo = lerMeta('alvo');
+  var garantido = 0;
+  var pendente = 0;
+  var info = [];
+
+  document.querySelectorAll('.ac').forEach(function (ac) {
+    var w = parseFloat(ac.dataset.w);
+    var inputs = ac.querySelectorAll('.n');
+    var pesosAC = [PESOS.entrega, PESOS.integrada, PESOS.pratica];
+    var soma = 0;
+    var faltando = 0;
+    inputs.forEach(function (inp, i) {
+      var v = lerNota(inp.value);
+      if (v === null) faltando += pesosAC[i];
+      else soma += v * pesosAC[i];
+    });
+    garantido += w * soma;
+    pendente += w * faltando;
+    info.push({ w: w, soma: soma, faltando: faltando, el: ac.querySelector('.res') });
+  });
+
+  var maximo = garantido + pendente * 10;
+  document.getElementById('pts').textContent = fmt(garantido);
+  document.getElementById('max').textContent = fmt(maximo);
+
+  info.forEach(function (a) {
+    if (a.faltando < 0.0001) {
+      a.el.textContent = 'Nota da AC: ' + fmt(a.soma) + ' (vale ' + fmt(a.w * a.soma) + ' na média)';
+    } else {
+      a.el.textContent = 'Parcial: ' + fmt(a.soma) + ' de ' + fmt((1 - a.faltando) * 10) + ' possíveis até agora';
+    }
+  });
+
+  var msg = document.getElementById('msg');
+  var need = document.getElementById('need');
+  msg.className = 'msg';
+  necessariaAtual = null;
+
+  if (pendente < 0.0001) {
+    need.textContent = '-';
+    if (garantido >= alvo - 0.0001) {
+      msg.className = 'msg ok';
+      msg.textContent = 'Média final ' + fmt(garantido) + '. Aprovado.';
+    } else {
+      msg.className = 'msg bad';
+      msg.textContent = 'Média final ' + fmt(garantido) + '. Abaixo de ' + fmt(alvo) + '.';
+    }
+    return;
+  }
+
+  var x = (alvo - garantido) / pendente;
+  necessariaAtual = x;
+
+  if (x <= 0) {
+    need.textContent = '0,00';
+    msg.className = 'msg ok';
+    msg.textContent = 'Você já garantiu a média ' + fmt(alvo) + ' mesmo tirando zero no que falta.';
+  } else if (x > 10.0001) {
+    need.textContent = fmt(x);
+    msg.className = 'msg bad';
+    msg.textContent = 'Você precisaria de ' + fmt(x) + ' nas notas restantes, então não dá para chegar a ' + fmt(alvo) + '. O máximo possível é ' + fmt(maximo) + '.';
+  } else {
+    need.textContent = fmt(x);
+    msg.className = 'msg info';
+    msg.textContent = 'Tirando ' + fmt(x) + ' em todas as notas que faltam, você fecha a média em ' + fmt(alvo) + '.';
+  }
+}
+
+/* ---------- 2. Possibilidades ---------- */
+var possibilidades = [
+  { integrada: 6, entrega: 8, prova: 5 },
+  { integrada: 6, entrega: 6, prova: 6 },
+  { integrada: 8, entrega: 6, prova: 4.5 },
+  { integrada: 5, entrega: 5, prova: 7.5 }
+];
+
+function notaAC(p) {
+  return p.integrada * PESOS.integrada + p.entrega * PESOS.entrega + p.prova * PESOS.pratica;
+}
+
+function desenharLista() {
+  var meta = lerMeta('metaAC');
+  var box = document.getElementById('lista');
+  box.innerHTML = '';
+
+  if (possibilidades.length === 0) {
+    var vazio = document.createElement('div');
+    vazio.className = 'msg';
+    vazio.textContent = 'Nenhuma possibilidade ainda. Adicione uma acima.';
+    box.appendChild(vazio);
+    return;
+  }
+
+  possibilidades.forEach(function (p, i) {
+    var nota = notaAC(p);
+    var passa = nota >= meta - 0.0001;
+
+    var card = document.createElement('div');
+    card.className = 'card scen';
+
+    var esq = document.createElement('div');
+    var titulo = document.createElement('h3');
+    titulo.textContent = 'Possibilidade ' + (i + 1);
+    var vals = document.createElement('div');
+    vals.className = 'vals';
+    vals.textContent = 'Integrada ' + fmt(p.integrada, 1) + ' · Entrega ' + fmt(p.entrega, 1) + ' · Prova ' + fmt(p.prova, 1);
+    var conta = document.createElement('div');
+    conta.className = 'vals';
+    conta.textContent = fmt(p.integrada * PESOS.integrada) + ' + ' + fmt(p.entrega * PESOS.entrega) + ' + ' + fmt(p.prova * PESOS.pratica) + ' = ' + fmt(nota);
+    esq.appendChild(titulo);
+    esq.appendChild(vals);
+    esq.appendChild(conta);
+
+    var dir = document.createElement('div');
+    dir.className = 'right';
+    var big = document.createElement('div');
+    big.className = 'big';
+    big.textContent = fmt(nota);
+    var badge = document.createElement('span');
+    badge.className = 'badge ' + (passa ? 'ok' : 'bad');
+    badge.textContent = passa ? 'Atinge a meta' : 'Falta ' + fmt(meta - nota);
+    var rem = document.createElement('div');
+    var btn = document.createElement('button');
+    btn.className = 'link';
+    btn.type = 'button';
+    btn.textContent = 'Remover';
+    btn.addEventListener('click', function () {
+      possibilidades.splice(i, 1);
+      desenharLista();
+    });
+    rem.appendChild(btn);
+    dir.appendChild(big);
+    dir.appendChild(badge);
+    dir.appendChild(rem);
+
+    card.appendChild(esq);
+    card.appendChild(dir);
+    box.appendChild(card);
+  });
+}
+
+function adicionarPossibilidade() {
+  var i = lerNota(document.getElementById('pInt').value);
+  var e = lerNota(document.getElementById('pEnt').value);
+  var p = lerNota(document.getElementById('pPro').value);
+  var err = document.getElementById('addErr');
+  if (i === null || e === null || p === null) {
+    err.textContent = 'Preencha as três notas, de 0 a 10.';
+    return;
+  }
+  err.textContent = '';
+  possibilidades.push({ integrada: i, entrega: e, prova: p });
+  document.getElementById('pInt').value = '';
+  document.getElementById('pEnt').value = '';
+  document.getElementById('pPro').value = '';
+  desenharLista();
+}
+
+/* ---------- 3. Tabela de combinações ---------- */
+function celulaNecessaria(v) {
+  var td = document.createElement('td');
+  if (v <= 0) {
+    td.className = 'free';
+    td.textContent = 'qualquer nota';
+  } else if (v > 10.0001) {
+    td.className = 'no';
+    td.textContent = 'impossível';
+  } else {
+    td.textContent = fmt(teto1(v), 1);
+  }
+  return td;
+}
+
+function desenharTabela() {
+  var meta = lerMeta('metaAC');
+  var corpo = document.getElementById('tabela');
+  corpo.innerHTML = '';
+
+  for (var prova = 10; prova >= 0; prova -= 0.5) {
+    var restante = meta - prova * PESOS.pratica;
+    var iguais = restante / (PESOS.integrada + PESOS.entrega);
+    var umaDez = (restante - 10 * PESOS.entrega) / PESOS.integrada;
+
+    var tr = document.createElement('tr');
+    var tdProva = document.createElement('td');
+    tdProva.textContent = fmt(prova, 1);
+    tr.appendChild(tdProva);
+    tr.appendChild(celulaNecessaria(iguais));
+    tr.appendChild(celulaNecessaria(umaDez));
+    corpo.appendChild(tr);
+  }
+}
+
+/* ---------- Eventos ---------- */
+document.querySelectorAll('.n, #alvo').forEach(function (el) {
+  el.addEventListener('input', calcularSemestre);
+});
+
+document.getElementById('metaAC').addEventListener('input', function () {
+  desenharLista();
+  desenharTabela();
+});
+
+document.getElementById('addPoss').addEventListener('click', adicionarPossibilidade);
+
+['pInt', 'pEnt', 'pPro'].forEach(function (id) {
+  document.getElementById(id).addEventListener('keydown', function (ev) {
+    if (ev.key === 'Enter') adicionarPossibilidade();
+  });
+});
+
+document.getElementById('usarNecessaria').addEventListener('click', function () {
+  var campo = document.getElementById('metaAC');
+  if (necessariaAtual === null) {
+    campo.value = fmt(lerMeta('alvo'), 1);
+  } else {
+    var v = Math.min(10, Math.max(0, necessariaAtual));
+    campo.value = fmt(teto1(v), 1);
+  }
+  desenharLista();
+  desenharTabela();
+});
+
+calcularSemestre();
+desenharLista();
+desenharTabela();
+</script>
+</body>
+</html>
